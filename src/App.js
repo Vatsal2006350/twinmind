@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './components/ui/card';
 import { Input } from './components/ui/input';
 import { Button } from './components/ui/button';
@@ -6,10 +6,14 @@ import { Textarea } from './components/ui/textarea';
 import { Alert, AlertDescription } from './components/ui/alert';
 import { Brain, Search, User } from 'lucide-react';
 
-// It's better to use an environment variable for the API key
-const API_KEY = 'O4Pjl1u1QLF99gdXA8bbifqZrV3kS8shJuZga7rgfMQ';
+const API_URL = 'http://localhost:3001/api/memory';
 
-const AutoResizeTextarea = ({ value, onChange, placeholder }) => {
+const TwinMind = () => {
+  const [userId, setUserId] = useState('');
+  const [input, setInput] = useState('');
+  const [response, setResponse] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const textareaRef = useRef(null);
 
   useEffect(() => {
@@ -17,150 +21,121 @@ const AutoResizeTextarea = ({ value, onChange, placeholder }) => {
       textareaRef.current.style.height = 'auto';
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
     }
-  }, [value]);
+  }, [input]);
 
-  return (
-    <Textarea
-      ref={textareaRef}
-      value={value}
-      onChange={onChange}
-      placeholder={placeholder}
-      className="min-h-[200px] bg-gray-800 text-white border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg p-4 resize-none overflow-hidden"
-      style={{ height: 'auto' }}
-    />
-  );
-};
-
-const MemoryBox = ({ title, endpoint, buttonText, icon: Icon, gradientFrom, gradientTo }) => {
-  const [input, setInput] = useState('');
-  const [response, setResponse] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-
-  const handleSubmit = async (userId) => {
+  const handleAPI = async (endpoint) => {
     if (!userId) {
       setError('User ID is required');
       return;
     }
     setLoading(true);
     setError('');
+    setResponse('');
+
     try {
-      let url, method, body;
-      if (endpoint === 'add') {
-        url = '/memory';
-        method = 'POST';
-        body = JSON.stringify({ user: userId, data: input });
-      } else {
-        url = `https://memory-api.vatsal-2cc.workers.dev/memory/ask?query=${encodeURIComponent(input)}&user=${encodeURIComponent(userId)}`;
-        method = 'GET';
-      }
-      
-      console.log(`Sending ${method} request to ${url}`);
-      
+      const url = endpoint === 'add' ? API_URL : `${API_URL}/ask?query=${encodeURIComponent(input)}&user=${encodeURIComponent(userId)}`;
+      const method = endpoint === 'add' ? 'POST' : 'GET';
+      const body = endpoint === 'add' ? JSON.stringify({ user: userId, data: input }) : undefined;
+
       const res = await fetch(url, {
         method,
         headers: {
-          'Authorization': `Bearer ${API_KEY}`,
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: method === 'POST' ? body : undefined
+        body,
       });
 
       if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        console.error('API Error:', res.status, errorData);
-        throw new Error(`API Error: ${res.status} ${res.statusText}`);
+        throw new Error(`HTTP error! status: ${res.status}`);
       }
 
       const data = await res.json();
-      console.log('API Response:', data);
       setResponse(data.response || JSON.stringify(data));
     } catch (err) {
-      console.error('Error in handleSubmit:', err);
-      setError(`An error occurred: ${err.message}. Please check the console for more details.`);
+      console.error('API request failed:', err);
+      setError(`An error occurred: ${err.message}`);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Card className="w-full bg-gray-900 border-none shadow-xl overflow-hidden">
-      <div className={`h-2 bg-gradient-to-r ${gradientFrom} ${gradientTo}`} />
-      <CardHeader className="flex flex-row items-center space-x-4 pb-6">
-        <Icon className="w-10 h-10 text-gray-400" />
-        <CardTitle className="text-3xl font-bold text-white">{title}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-6">
-          <AutoResizeTextarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Enter your text here..."
-          />
-          <Button 
-            onClick={() => handleSubmit(document.getElementById('userId').value)}
-            disabled={loading}
-            className={`w-full bg-gradient-to-r ${gradientFrom} ${gradientTo} text-white font-semibold py-3 px-6 rounded-md transition-all duration-300 ease-in-out transform hover:scale-105 text-lg`}
-          >
-            {loading ? 'Processing...' : buttonText}
-          </Button>
-          {error && (
-            <Alert variant="destructive" className="mt-4">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-          {response && (
-            <div className="mt-6 p-6 bg-gray-800 rounded-md border border-gray-700">
-              <h4 className="font-semibold mb-3 text-gray-300 text-xl">Response:</h4>
-              <p className="text-white text-lg">{response}</p>
-            </div>
-          )}
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
-
-const TwinMindAI = () => {
-  return (
-    <div className="min-h-screen bg-gray-950 text-white py-16 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-5xl mx-auto">
-        <h1 className="text-6xl font-extrabold text-center mb-16 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500">
-          TwinMind AI
+    <div className="min-h-screen bg-gray-950 text-white py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-5xl font-extrabold text-center mb-12">
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-800 to-blue-500">
+            Twin
+          </span>
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-red-800">
+            Mind
+          </span>
         </h1>
-        <div className="mb-12">
-          <label htmlFor="userId" className="block text-xl font-medium text-gray-300 mb-4">User ID</label>
-          <div className="flex items-center">
-            <User className="w-6 h-6 text-gray-400 mr-3" />
+        
+        <Card className="w-full bg-gray-900 border-none shadow-xl overflow-hidden mb-8">
+          <div className="h-2 bg-gradient-to-r from-blue-800 to-red-800" />
+          <CardHeader className="flex flex-row items-center space-x-4 pb-2">
+            <User className="w-8 h-8 text-gray-400" />
+            <CardTitle className="text-2xl font-bold text-white">User ID</CardTitle>
+          </CardHeader>
+          <CardContent>
             <Input
-              id="userId"
-              type="text"
+              value={userId}
+              onChange={(e) => setUserId(e.target.value)}
               placeholder="Enter your user ID"
-              className="flex-grow bg-gray-800 text-white border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg py-3 px-4"
+              className="bg-gray-800 text-white border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
-          </div>
-        </div>
-        <div className="space-y-16">
-          <MemoryBox 
-            title="Add Memory" 
-            endpoint="add" 
-            buttonText="Add Memory" 
-            icon={Brain}
-            gradientFrom="from-blue-600"
-            gradientTo="to-blue-400"
-          />
-          <MemoryBox 
-            title="Search Memories" 
-            endpoint="query" 
-            buttonText="Search" 
-            icon={Search}
-            gradientFrom="from-purple-600"
-            gradientTo="to-pink-500"
-          />
-        </div>
+          </CardContent>
+        </Card>
+
+        <Card className="w-full bg-gray-900 border-none shadow-xl overflow-hidden">
+          <div className="h-2 bg-gradient-to-r from-blue-800 to-red-800" />
+          <CardHeader className="flex flex-row items-center space-x-4 pb-2">
+            <Brain className="w-8 h-8 text-gray-400" />
+            <CardTitle className="text-2xl font-bold text-white">TwinMind Interface</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <Textarea
+                ref={textareaRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Enter your text here..."
+                className="w-full min-h-[120px] bg-gray-800 text-white border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none overflow-hidden"
+                style={{ height: 'auto' }}
+              />
+              <div className="flex space-x-4">
+                <Button 
+                  onClick={() => handleAPI('query')}
+                  disabled={loading}
+                  className="flex-1 bg-gradient-to-r from-red-500 to-red-800 text-white font-semibold py-2 px-4 rounded-md transition-all duration-300 ease-in-out transform hover:scale-105"
+                >
+                  {loading ? 'Processing...' : 'Search Memories'}
+                </Button>
+                <Button 
+                  onClick={() => handleAPI('add')}
+                  disabled={loading}
+                  className="flex-1 bg-gradient-to-r from-blue-800 to-blue-500 text-white font-semibold py-2 px-4 rounded-md transition-all duration-300 ease-in-out transform hover:scale-105"
+                >
+                  {loading ? 'Processing...' : 'Add Memory'}
+                </Button>
+              </div>
+              {error && (
+                <Alert variant="destructive">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+              {response && (
+                <div className="mt-4 p-4 bg-gray-800 rounded-md border border-gray-700">
+                  <h4 className="font-semibold mb-2 text-gray-300">Response:</h4>
+                  <p className="text-white">{response}</p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
 };
 
-export default TwinMindAI;
+export default TwinMind;
