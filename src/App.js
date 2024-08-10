@@ -47,7 +47,7 @@ const MemoryBox = ({ title, endpoint, buttonText, icon: Icon, gradientFrom, grad
     try {
       let url, method, body;
       if (endpoint === 'add') {
-        url = 'https://memory-api.vatsal-2cc.workers.dev/memory';
+        url = '/memory';
         method = 'POST';
         body = JSON.stringify({ user: userId, data: input });
       } else {
