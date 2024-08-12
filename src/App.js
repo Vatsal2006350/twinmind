@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Brain, User } from 'lucide-react';
 
-const API_URL = 'http://localhost:3001/api/memory';
+const API_URL = 'https://memory-api.vatsal-2cc.workers.dev/memory';
 
 const TwinMind = () => {
   const [userId, setUserId] = useState('');
