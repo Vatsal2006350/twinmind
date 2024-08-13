@@ -36,6 +36,7 @@ const TwinMind = () => {
         method,
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer O4Pjl1u1QLF99gdXA8bbifqZrV3kS8shJuZga7rgfMQ`,
         },
         body,
       });
