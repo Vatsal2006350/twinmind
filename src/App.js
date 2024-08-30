@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Brain, User } from 'lucide-react';
 
-const API_URL = 'https://memory-api.vatsal-2cc.workers.dev/memory';
+const API_URL = 'https://thirdear-backend-git-feat-add-initial-memor-aeaf8e-third-ear-ai.vercel.app/api/v1';
+const DEV_ACCESS_TOKEN = 'dev_5KKbDuAWFGI5ySw6c-qlk-4Dt1FIxsEhzUTXbHWicG3oghGb'; // Dev access token
 
 const TwinMind = () => {
   const [userId, setUserId] = useState('');
@@ -28,17 +29,21 @@ const TwinMind = () => {
     setResponse('');
 
     try {
-      const url = endpoint === 'add' ? API_URL : `${API_URL}/ask?query=${encodeURIComponent(input)}&user=${encodeURIComponent(userId)}`;
-      const method = endpoint === 'add' ? 'POST' : 'GET';
-      const body = endpoint === 'add' ? JSON.stringify({ user: userId, data: input }) : undefined;
+      const url = `${API_URL}/${endpoint === 'add' ? 'add_memory' : 'search_memory'}`;
+      const method = 'POST';
+      const body = endpoint === 'add' 
+        ? JSON.stringify({ memory: [input] })
+        : JSON.stringify({ keywords: input.split(/\s+/) });
 
       const res = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer O4Pjl1u1QLF99gdXA8bbifqZrV3kS8shJuZga7rgfMQ`,
+          'Authorization': `Bearer ${DEV_ACCESS_TOKEN}`,
+          'x-vercel-protection-bypass': process.env.REACT_APP_VERCEL_PROTECTION_BYPASS_SECRET,
         },
         body,
+        
       });
 
       if (!res.ok) {
@@ -46,7 +51,7 @@ const TwinMind = () => {
       }
 
       const data = await res.json();
-      setResponse(data.response || JSON.stringify(data));
+      setResponse(endpoint === 'add' ? JSON.stringify(data) : JSON.stringify(data.memories));
     } catch (err) {
       console.error('API request failed:', err);
       setError(`An error occurred: ${err.message}`);
