@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Brain, User } from 'lucide-react';
 
 const API_URL = 'https://thirdear-backend-git-feat-add-initial-memor-aeaf8e-third-ear-ai.vercel.app/api/v1';
-const DEV_ACCESS_TOKEN = 'dev_5KKbDuAWFGI5ySw6c-qlk-4Dt1FIxsEhzUTXbHWicG3oghGb'; // Dev access token
+const DEV_ACCESS_TOKEN = 'K1oNTqR7cjtbhehlqxQgxSP9As13QAeE';
 
 const TwinMind = () => {
   const [userId, setUserId] = useState('');
