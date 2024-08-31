@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Brain, User } from 'lucide-react';
 
 const API_URL = 'https://thirdear-backend-git-feat-add-initial-memor-aeaf8e-third-ear-ai.vercel.app/api/v1';
-const DEV_ACCESS_TOKEN = 'K1oNTqR7cjtbhehlqxQgxSP9As13QAeE';
+const VERCEL_PROTECTION_BYPASS_SECRET = 'K1oNTqR7cjtbhehlqxQgxSP9As13QAeE';
+const BEARER_TOKEN = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImtWX2RaamRVd19Gd2xDU0R0Vi1hUyJ9.eyJlbWFpbCI6InRlYW1AdGhpcmRlYXIuYWkiLCJuYW1lIjoiVGVhbSBUaGlyZEVhciIsInRoaXJkZWFyX3VzZXJfaWQiOiJkOTg4NDkwNy1iOThkLTRlMDMtODliYi1mMTVjZDhjN2MwNmIiLCJpc3MiOiJodHRwczovL2Rldi01eWxubm13ZDdyYmF6MTB5LnVzLmF1dGgwLmNvbS8iLCJzdWIiOiJnb29nbGUtb2F1dGgyfDExMzQ1NDg0NjMxMTMwMjQyMzg1OSIsImF1ZCI6WyJodHRwczovL2FwaS50aGlyZGVhci5saXZlIiwiaHR0cHM6Ly9kZXYtNXlsbm5td2Q3cmJhejEweS51cy5hdXRoMC5jb20vdXNlcmluZm8iXSwiaWF0IjoxNzI1MTIzMTc1LCJleHAiOjE3MjUxMjkxNzUsInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwgb2ZmbGluZV9hY2Nlc3MiLCJhenAiOiJ4bDJyUXo5anp2amF0R2FvclN0MnNUaHBKa0RlaDd4biJ9.trpwzzS7C9E9QDbkYuw4myx0kPWlqkoMorJGjfL6WzRA_lKZD7RqdC8QSQfUfWBqL-F1qRVdGQrCwIolULEblmWpiMhuuzKF4RdBYMbhXZ2sGH8tnrObzUdV236--fTFRFfi0Rw91p6rnkEoTw3O0RhKd9ciG5-t7x_wFZC_hu1GzmpOu8xilvvb1m3Zua-ZLYU8EEdzG0VfbRUNS1VwsCboGjoIgcS6uxZBjQ6dkhm25GK4fUg_YPAjxJpbsXLqroiD2JL4WEwNOcT80raOvKFeoIUcVv7bF6iGauFZW7z54_Pk_ceqOxuQ1BTwiDRQ68edoyB5OQfgOyX3alNBsA';
 
 const TwinMind = () => {
   const [userId, setUserId] = useState('');
@@ -39,11 +40,10 @@ const TwinMind = () => {
         method,
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${DEV_ACCESS_TOKEN}`,
-          'x-vercel-protection-bypass': process.env.REACT_APP_VERCEL_PROTECTION_BYPASS_SECRET,
+          'Authorization': `Bearer ${BEARER_TOKEN}`,
+          'x-vercel-protection-bypass': VERCEL_PROTECTION_BYPASS_SECRET,
         },
         body,
-        
       });
 
       if (!res.ok) {
